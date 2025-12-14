@@ -173,4 +173,68 @@ UserInputService.InputBegan:Connect(function(i,gp)
     end
 end)
 
-print("W112ND Ultimate Loaded")
+-- ================= MM2 ADVANCED =================
+-- Auto Detect Murderer / Sheriff + Distance ESP
+local mm2ESP = false
+Tab2:CreateToggle({Name="MM2 ESP (Roles)",CurrentValue=false,Callback=function(v)
+    mm2ESP = v
+end})
+
+RunService.RenderStepped:Connect(function()
+    if not mm2ESP then return end
+    for _,plr in pairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local backpack = plr:FindFirstChild("Backpack")
+            local role = nil
+            if backpack then
+                if backpack:FindFirstChild("Knife") then role = "Murderer" end
+                if backpack:FindFirstChild("Gun") then role = "Sheriff" end
+            end
+            if role then
+                if not plr.Character:FindFirstChild("W112ND_MM2") then
+                    local hl = Instance.new("Highlight")
+                    hl.Name = "W112ND_MM2"
+                    hl.FillColor = role=="Murderer" and Color3.fromRGB(255,0,0) or Color3.fromRGB(0,150,255)
+                    hl.Parent = plr.Character
+                end
+            end
+        end
+    end
+end)
+
+-- Auto Dodge Murderer
+local autoDodge = false
+Tab2:CreateToggle({Name="Auto Dodge Murderer",CurrentValue=false,Callback=function(v)
+    autoDodge = v
+end})
+
+RunService.RenderStepped:Connect(function()
+    if not autoDodge then return end
+    for _,plr in pairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            if plr.Backpack:FindFirstChild("Knife") then
+                local dist = (plr.Character.HumanoidRootPart.Position - hrp.Position).Magnitude
+                if dist < 20 then
+                    hrp.CFrame = hrp.CFrame * CFrame.new(0,0,-30)
+                end
+            end
+        end
+    end
+end)
+
+-- ================= GAME DETECT =================
+local placeId = game.PlaceId
+if placeId == 142823291 then -- MM2
+    Rayfield:Notify({Title="Game Detected",Content="Murder Mystery 2",Duration=3})
+end
+
+-- ================= SAFETY =================
+-- Client Kick Protection
+for _,v in pairs(player.PlayerScripts:GetDescendants()) do
+    if v:IsA("LocalScript") and v.Source:lower():find("kick") then
+        v.Disabled = true
+    end
+end
+
+-- ================= FINAL =================
+print("W112ND ULTIMATE ++ FULL STACK LOADED")
